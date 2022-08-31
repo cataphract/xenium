@@ -60,6 +60,10 @@ struct rotate<0> {
   static uintptr_t right(uintptr_t v) { return v; }
 };
 
+#ifndef __has_builtin
+  #define __has_builtin(x) 0
+#endif
+
 #if defined(__sparc__)
 static inline std::uint64_t getticks() {
   std::uint64_t ret;
@@ -76,9 +80,13 @@ static inline std::uint64_t getticks() {
 static inline std::uint64_t getticks() {
   return __rdtsc();
 }
+#elif __has_builtin(__builtin_readcyclecounter)
+static inline std::uint64_t getticks() {
+  return __builtin_readcyclecounter();
+}
 #else
   // TODO - add support for more compilers!
-  #error "Unsupported compiler"
+# error "Unsupported compiler"
 #endif
 
 inline std::uint64_t random() {
